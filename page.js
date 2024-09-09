@@ -26,12 +26,16 @@ export default function TaskManager() {
 
   
 
+  
+
   useEffect(() => {
     const storedTasks = localStorage.getItem('tasks')
     const storedTimedTasks = localStorage.getItem('timedTasks')
     const storedNotes = localStorage.getItem('notes')
     const storedPoints = localStorage.getItem('userPoints')
-    if (storedTasks) setTasks(JSON.parse(storedTasks))
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks))
+    }
     if (storedTimedTasks) setTimedTasks(JSON.parse(storedTimedTasks))
     if (storedNotes) setNotes(JSON.parse(storedNotes))
     if (storedPoints) setUserPoints(parseInt(storedPoints))

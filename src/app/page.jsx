@@ -203,6 +203,8 @@ export default function TaskManager() {
             console.log(notes)
             localStorage.setItem("notes",JSON.stringify(notes))
         }
+    }else{
+        localStorage.setItem("notes",JSON.stringify([]))
     }
   }, [notes])
 
