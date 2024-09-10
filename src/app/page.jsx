@@ -3,7 +3,7 @@
 // Importamos los hooks de React que vamos a utilizar
 import { useState, useEffect, useRef } from "react"
 // Importamos los iconos que vamos a utilizar
-import {  Edit, Trash2, Clock, MoreVertical, Timer, Navigation } from "lucide-react"
+import {  Edit, Trash2, Clock, MoreVertical, Timer, Navigation, ChevronDownSquare } from "lucide-react"
 import HeaderMovil from "./comonentes/HeaderMovil/HeaderMovil"
 import HeaderMovilDesplegable from "./comonentes/HeaderMovilDesplegable/HeaderMovilDesplegable"
 import TopUserMovil from "./comonentes/TopUserMovil/TopUserMovil"
@@ -16,7 +16,12 @@ export default function TaskManager() {
   const [tasks, setTasks] = useState([])
   const [timedTasks, setTimedTasks] = useState([])
   const [notes, setNotes] = useState([])
-  const [newTask, setNewTask] = useState("")
+  const [newTask, setNewTask] = useState({
+        text: "",
+        scheduledTime: "",
+        duration: "",
+        day:""
+  })
   const [newTaskTime, setNewTaskTime] = useState("")
   const [newTaskDuration, setNewTaskDuration] = useState("")
   const [newTimedTask, setNewTimedTask] = useState("")
@@ -38,7 +43,11 @@ export default function TaskManager() {
     fecha:"",
   })
 
-  
+
+  const [tasksDay,setTasksDay] = useState([])
+
+
+  const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   // Efecto que se ejecuta al cargar el componente
   useEffect(() => {
     // Obtenemos las tareas, tareas temporizadas, notas y puntos del usuario almacenados en el localStorage
@@ -48,7 +57,7 @@ export default function TaskManager() {
     // Si existen, los cargamos en el estado inicial
     if (storedTasks) setTasks(JSON.parse(storedTasks))
     if (storedNotes) setNotes(JSON.parse(storedNotes))
-
+        
     // Configuramos un temporizador que se ejecuta cada segundo
     const timer = setInterval(() => {
       const now = new Date()
@@ -66,12 +75,6 @@ export default function TaskManager() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
-
-
-
-  
-  
-  
 
 
 
@@ -100,83 +103,89 @@ export default function TaskManager() {
 
   // Función que añade una nueva tarea
   const addTask = () => {
-    if (newTask.trim() !== "") {
+    if (newTask.text.length  !== 0 ) {
       const newTaskItem = {
         id: Date.now(),
-        text: newTask,
-        completed: false,
+        text: newTask.text,
         createdAt: new Date().toISOString(),
-        scheduledTime: newTaskTime,
-        duration: newTaskDuration,
+        scheduledTime: newTask.scheduledTime,
+        duration: newTask.duration,
+        done:0,
+        undone:0,
+        day:newTask.day || calculateDay(),
+        completed:false,
       }
       setTasks([...tasks, newTaskItem])
-      setNewTask("")
+      setNewTask({
+        text: "",
+        scheduledTime: "",
+        duration: "",
+        day:""
+      })
       setNewTaskTime("")
       setNewTaskDuration("")
     }
   }
 
+  useEffect(() => {
+    console.log(tasks)
+  }, [tasks])
+  
+  
+
+  useEffect(() => {
+    const tasksExite = localStorage.getItem("tasks")
+    if(tasksExite){
+        if(tasks.length > 0){
+            localStorage.setItem("tasks",JSON.stringify(tasks))
+        }
+    }else{
+        localStorage.setItem("tasks",JSON.stringify([]))
+    }
+  }, [tasks])
 
   // Función que edita una tarea
-  const editTask = (id, isTimedTask = false) => {
-    if (isTimedTask) {
-      const taskToEdit = timedTasks.find(task => task.id === id)
-      setEditingTimedTask(taskToEdit)
-      setNewTimedTask(taskToEdit.text)
-      setNewTaskTime(taskToEdit.scheduledTime || "")
-    } else {
-      const taskToEdit = tasks.find(task => task.id === id)
-      setEditingTask(taskToEdit)
-      setNewTask(taskToEdit.text)
-      setNewTaskTime(taskToEdit.scheduledTime || "")
-      setNewTaskDuration(taskToEdit.duration || "")
-    }
+  // modo 
+  const editTask = (id) => {
+    setEditingTask(id)
+      const taskEncontrado  = tasks.find(task => task.id === id)
+      setNewTask({
+        text:taskEncontrado.text,
+        scheduledTime: taskEncontrado.scheduledTime,
+        duration: taskEncontrado.duration,
+      })   
     setOpenMenuId(null)
   }
-
+  
   // Función que actualiza una tarea
-  const updateTask = (isTimedTask = false) => {
-    if (isTimedTask) {
-      if (editingTimedTask && newTimedTask.trim() !== "" && newTaskTime !== "") {
-        setTimedTasks(timedTasks.map(task => 
-          task.id === editingTimedTask.id ? {
-            ...task,
-            text: newTimedTask,
-            scheduledTime: newTaskTime,
-          } : task
-        ))
+  const updateTask = () => {
+    setTasks(prev => {
+        const newTasks = prev.map(tarea  => tarea.id === editingTask  ? {
+            ...tarea,
+            text:newTask.text,
+            scheduledTime: newTask.scheduledTime,
+            duration: newTask.duration,
+        } : tarea)
+        return newTasks
+    })
         setEditingTimedTask(null)
         setNewTimedTask("")
         setNewTaskTime("")
-      }
-    } else {
-      if (editingTask && newTask.trim() !== "") {
-        setTasks(tasks.map(task => 
-          task.id === editingTask.id ? {
-            ...task,
-            text: newTask,
-            scheduledTime: newTaskTime,
-            duration: newTaskDuration,
-          } : task
-        ))
         setEditingTask(null)
-        setNewTask("")
-        setNewTaskTime("")
-        setNewTaskDuration("")
-      }
-    }
+        setNewTask({
+            text:"",
+            scheduledTime:"",
+            duration:""
+        })
   }
-
   // Función que elimina una tarea
-  const deleteTask = (id, isTimedTask = false) => {
-    if (isTimedTask) {
-      setTimedTasks(timedTasks.filter(task => task.id !== id))
-    } else {
-      setTasks(tasks.filter(task => task.id !== id))
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(task => task.id !== id))
+    if(tasks.length === 1){
+        localStorage.setItem("tasks",JSON.stringify([]))
     }
     setOpenMenuId(null)
   }
-
 
 
   // Función que añade una nueva nota
@@ -240,7 +249,6 @@ export default function TaskManager() {
   // Función que elimina una nota
   const deleteNote = (id) => {
     setNotes(notes.filter(note => note.id !== id))
-    console.log(notes.length)
     if(notes.length === 1){
         localStorage.setItem("notes",JSON.stringify([]))
     }
@@ -262,6 +270,32 @@ export default function TaskManager() {
     setShowTopUsers(!showTopUsers)
   }
 
+
+  const calculateDay  = () =>{
+  const days  = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const date = new Date().getDay()
+    if(date > 6 ){
+      return "Domingo"
+    }
+    return  days[date - 1 ]
+  }
+
+    const filtelForDay = (day) =>{
+        const tasksDay  =   tasks.filter(task => task.day === day)
+        console.log(tasksDay)
+        setTasksDay(tasksDay)
+    }
+
+    useEffect(() => {
+      filtelForDay(calculateDay())
+    }, [tasks])
+    
+
+
+
+
+    
+  
   // Renderizamos el componente
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground">
@@ -302,29 +336,39 @@ export default function TaskManager() {
               Notas
             </button>
           </div>
-          
+
           {activeTab === 'tasks' && (
             <div className="space-y-4">
+                <div className="flex " >
+                 {daysOfWeek.map((day, index) => (
+                  <div onClick={() => {
+                    setNewTask(prev => ({...prev,day}))
+                    filtelForDay(day)
+                  } } key={index} style={{padding:"10px 6px",background:"black",margin:"0px 1px",borderRadius:"4px",color:"white"}}>
+                 {day}
+             </div>
+              ))}
+           </div>
               <div className="flex flex-col space-y-2">
                 <input
                   className="px-3 py-2 border rounded"
                   placeholder="Nueva tarea"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
+                  value={newTask.text}
+                  onChange={(e) => setNewTask(prev => ({...prev,text:e.target.value}))}
                 />
                 <div className="flex space-x-2">
                   <input
                     type="time"
                     className="px-3 py-2 border rounded flex-1"
-                    value={newTaskTime}
-                    onChange={(e) => setNewTaskTime(e.target.value)}
+                    value={newTask.scheduledTime}
+                    onChange={(e) => setNewTask(prev => ({...prev,scheduledTime:e.target.value}))}
                   />
                   <input
                     type="text"
                     className="px-3 py-2 border rounded flex-1"
                     placeholder="Duración (ej: 2 horas)"
-                    value={newTaskDuration}
-                    onChange={(e) => setNewTaskDuration(e.target.value)}
+                    value={newTask.duration}
+                    onChange={(e) => setNewTask(prev => ({...prev,duration:e.target.value}))}
                   />
                   <button
                     className="px-4 py-2 bg-primary text-primary-foreground rounded"
@@ -334,18 +378,21 @@ export default function TaskManager() {
                   </button>
                 </div>
               </div>
-              <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-auto">
-                {tasks.map((task) => (
+              <div className=" max-h-[calc(100vh-300px)] ">
+                {tasksDay.map((task) => (
                   <div key={task.id} className="flex items-center justify-between py-2 px-3 bg-secondary rounded-lg">
-                    <div className="flex items-center space-x-2">
+                   <div>
+                   <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         checked={task.completed}
-                        onChange={() => toggleTask(task.id)}
+                        onChange={() => false}
                         className="rounded"
                       />
                       <span className={task.completed ? "line-through" : ""}>{task.text}</span>
                     </div>
+                   {/* estadisticas de la tarea  */}
+                   </div>
                     <div className="flex items-center space-x-2">
                       {task.scheduledTime && (
                         <span className="text-sm">
@@ -359,9 +406,6 @@ export default function TaskManager() {
                           {task.duration}
                         </span>
                       )}
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(task.createdAt).toLocaleDateString()}
-                      </span>
                       <div className="relative">
                         <button onClick={() => toggleMenu(task.id)} className="p-1 hover:bg-primary/10 rounded">
                           <MoreVertical className="h-4 w-4" />
