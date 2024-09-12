@@ -77,8 +77,6 @@ export default function TaskManager() {
   }, [])
 
 
-
-
   // Función que se ejecuta al hacer clic fuera del menú
   const handleClickOutside = (event) => {
     if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -209,7 +207,6 @@ export default function TaskManager() {
     const notasExite = localStorage.getItem("notes")
     if(notasExite){
         if(notes.length > 0){
-            console.log(notes)
             localStorage.setItem("notes",JSON.stringify(notes))
         }
     }else{
@@ -220,7 +217,7 @@ export default function TaskManager() {
 
  
 
-  const modoActualizar   = (id) => {
+  const modoActualizar   = (id) => { 
     setEditingNote(id)
     const notaEncontrada = notes.find(note  => note.id === id )
     setNotas({
@@ -282,19 +279,47 @@ export default function TaskManager() {
 
     const filtelForDay = (day) =>{
         const tasksDay  =   tasks.filter(task => task.day === day)
-        console.log(tasksDay)
         setTasksDay(tasksDay)
     }
-
+    
     useEffect(() => {
       filtelForDay(calculateDay())
     }, [tasks])
+
+
+    const clickCheckboxTask = (id) => {
+      // 1. Check if a task with the given ID exists and if it's already completed for today
+      const existingTask = tasks.find(task => task.id === id);
+      const isCompletedToday = existingTask?.completed && existingTask.day === getTodaysName();
+      
+      if (!existingTask || isCompletedToday) {
+        return; // Do nothing if task doesn't exist or is already completed for today
+      }
+      const updatedTasks = tasks.map(task =>
+        task.id === id ? { ...task, done:task.done + 1, completed: true } : task
+      );
+      setTasks(updatedTasks);
+    };
+
+    // Helper function to get today's day name in Spanish (replace with your preferred method)
+    function getTodaysName() {
+      const today = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+      return today.charAt(0).toUpperCase() + today.slice(1); // Capitalize the first letter
+    }
+   
+
+   
+   function ejecutarAlFinalDelDia(funcionAEjecutar) {
+    const ahora = new Date();
+    const finalDelDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1, 0, 0, 0, 0);
+    const diferenciaMilisegundos = finalDelDia - ahora;
+    console.log(diferenciaMilisegundos)
+    setTimeout(funcionAEjecutar, diferenciaMilisegundos);
+  }
+
+ 
     
 
-
-
-
-    
   
   // Renderizamos el componente
   return (
@@ -310,7 +335,7 @@ export default function TaskManager() {
  {/* Área principal */}
    <main className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold hidden md:block">Gestor de Tareas</h1>
+          <h1 className="text-2xl font-bold hidden md:block">{calculateDay()} </h1>
           <div className="text-lg font-semibold">
             {currentTime.toLocaleTimeString()}
           </div>
@@ -386,11 +411,16 @@ export default function TaskManager() {
                       <input
                         type="checkbox"
                         checked={task.completed}
-                        onChange={() => false}
+                        onChange={() =>{
+                          clickCheckboxTask(task.id)
+                        } }
                         className="rounded"
                       />
                       <span className={task.completed ? "line-through" : ""}>{task.text}</span>
                     </div>
+                    <span>dias: {task.done + task.undone} </span>
+                    <span>x: {task.done} </span>
+                    <span>x: {task.undone} </span>
                    {/* estadisticas de la tarea  */}
                    </div>
                     <div className="flex items-center space-x-2">
