@@ -61,7 +61,6 @@ export default function TaskManager() {
     // Configuramos un temporizador que se ejecuta cada segundo
     const timer = setInterval(() => {
       const now = new Date()
-      console.log(now.toLocaleTimeString())
       setCurrentTime(now)
       checkTimedTasks(now)
     }, 1000)
@@ -213,8 +212,6 @@ export default function TaskManager() {
         localStorage.setItem("notes",JSON.stringify([]))
     }
   }, [notes])
-
-
  
 
   const modoActualizar   = (id) => { 
@@ -277,9 +274,11 @@ export default function TaskManager() {
     return  days[date - 1 ]
   }
 
+  const [dayWeek,setDayWeek] = useState(calculateDay())
     const filtelForDay = (day) =>{
         const tasksDay  =   tasks.filter(task => task.day === day)
         setTasksDay(tasksDay)
+        setDayWeek(day)
     }
     
     useEffect(() => {
@@ -317,10 +316,6 @@ export default function TaskManager() {
     setTimeout(funcionAEjecutar, diferenciaMilisegundos);
   }
 
- 
-    
-
-  
   // Renderizamos el componente
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground">
@@ -366,10 +361,14 @@ export default function TaskManager() {
             <div className="space-y-4">
                 <div className="flex " >
                  {daysOfWeek.map((day, index) => (
-                  <div onClick={() => {
+                  <div
+             
+                  onClick={() => {
                     setNewTask(prev => ({...prev,day}))
                     filtelForDay(day)
-                  } } key={index} style={{padding:"10px 6px",background:"black",margin:"0px 1px",borderRadius:"4px",color:"white"}}>
+                  } }
+                   key={index} 
+                   style={day === dayWeek ? {padding:"10px 6px",background:"white",margin:"0px 1px",borderRadius:"4px",color:"black"} : {padding:"10px 6px",background:"black",margin:"0px 1px",borderRadius:"4px",color:"white"}}>
                  {day}
              </div>
               ))}
