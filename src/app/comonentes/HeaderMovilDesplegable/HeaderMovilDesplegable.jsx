@@ -2,7 +2,7 @@ import React from 'react'
 import { Home,ListTodo,CalendarDays,Users,Settings ,X} from 'lucide-react'
 const HeaderMovilDesplegable = ({toggleMobileMenu}) => {
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col p-4">
+    <div style={{background:"#172c3a",color:"white"}} className="fixed inset-0 bg-background z-50 flex flex-col p-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">Menú</h2>
             <button onClick={toggleMobileMenu} className="p-2 rounded-full hover:bg-primary/10">
