@@ -11,6 +11,7 @@ import {
   Timer,
   Navigation,
   ChevronDownSquare,
+  FunctionSquare,
 } from "lucide-react";
 import HeaderMovil from "./comonentes/HeaderMovil/HeaderMovil";
 import HeaderMovilDesplegable from "./comonentes/HeaderMovilDesplegable/HeaderMovilDesplegable";
@@ -19,6 +20,7 @@ import HeaderDesktop from "./comonentes/HeaderDesktop/HeaderDesktop";
 import TopDesktop from "./comonentes/TopDesktop/TopDesktop";
 import Button from "./comonentes/ui/Button";
 import Cronometrar from "./comonentes/Secciones/SecTareas/Cronometrar/Cronometrar";
+import reniciarTodasLasTareas from "./funcionesGlobales/EliminarTodasLasTareaHechaCadaSemana";
 
 // Definimos el componente principal
 export default function TaskManager() {
@@ -52,7 +54,6 @@ export default function TaskManager() {
   });
 
   const [tasksDay, setTasksDay] = useState([]);
-
   const daysOfWeek = [
     "Lunes",
     "Martes",
@@ -418,6 +419,12 @@ export default function TaskManager() {
     return today.charAt(0).toUpperCase() + today.slice(1); // Capitalize the first letter
   }
 
+
+  
+  useEffect(() => {
+    reniciarTodasLasTareas()
+  }, [])
+  
   // Renderizamos el componente
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground">
