@@ -1,7 +1,7 @@
 "use client";
 
 // Importamos los hooks de React que vamos a utilizar
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 // Importamos los iconos que vamos a utilizar
 import {
   Edit,
@@ -9,9 +9,6 @@ import {
   Clock,
   MoreVertical,
   Timer,
-  Navigation,
-  ChevronDownSquare,
-  FunctionSquare,
 } from "lucide-react";
 import HeaderMovil from "./comonentes/HeaderMovil/HeaderMovil";
 import HeaderMovilDesplegable from "./comonentes/HeaderMovilDesplegable/HeaderMovilDesplegable";
@@ -21,6 +18,7 @@ import TopDesktop from "./comonentes/TopDesktop/TopDesktop";
 import Button from "./comonentes/ui/Button";
 import Cronometrar from "./comonentes/Secciones/SecTareas/Cronometrar/Cronometrar";
 import reniciarTodasLasTareas from "./funcionesGlobales/EliminarTodasLasTareaHechaCadaSemana";
+import SecTareas from "./comonentes/Secciones/SecTareas/SecTareas";
 
 // Definimos el componente principal
 export default function TaskManager() {
@@ -52,6 +50,7 @@ export default function TaskManager() {
     text: "",
     fecha: "",
   });
+
 
   const [tasksDay, setTasksDay] = useState([]);
   const daysOfWeek = [
@@ -138,10 +137,6 @@ export default function TaskManager() {
       setNewTaskDuration("");
     }
   };
-
-  useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
 
   useEffect(() => {
     const tasksExite = localStorage.getItem("tasks");
@@ -420,29 +415,28 @@ export default function TaskManager() {
   }
 
 
-  
+
   useEffect(() => {
     reniciarTodasLasTareas()
   }, [])
+
+
+
+
   
   // Renderizamos el componente
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background text-foreground">
       {/* Header de iconos para móviles */}
-      <HeaderMovil
-        toggleTopUsers={toggleTopUsers}
-        toggleMobileMenu={toggleMobileMenu}
-      />
+      <HeaderMovil toggleTopUsers={toggleTopUsers} toggleMobileMenu={toggleMobileMenu}  />
       {/* Menú móvil desplegable */}
-      {showMobileMenu && (
-        <HeaderMovilDesplegable toggleMobileMenu={toggleMobileMenu} />
-      )}
+      {showMobileMenu && ( <HeaderMovilDesplegable toggleMobileMenu={toggleMobileMenu} /> )}
       {/* Panel de usuarios destacados para móviles */}
       {showTopUsers && <TopUserMovil toggleTopUsers={toggleTopUsers} />}
       {/* Header de iconos para desktop */}
       <HeaderDesktop />
       {/* Área principal */}
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto ">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl  font-bold hidden md:block">
             {calculateDay()}{" "}
@@ -483,249 +477,35 @@ export default function TaskManager() {
             </button>
           </div>
           {activeTab === "tasks" && (
-            <>
-            {
-              mostrarCronometro  ? 
-                <Cronometrar/>
-               :(
-                <div className="space-y-4">
-                <div className="flex ">
-                  {daysOfWeek.map((day, index) => (
-                    <div
-                      className="bg-cyan-800"
-                      onClick={() => {
-                        setNewTask((prev) => ({ ...prev, day }));
-                        filtelForDay(day);
-                      }}
-                      key={index}
-                      style={
-                        day === dayWeek
-                          ? {
-                              padding: "10px 6px",
-                              background: "#4093b7",
-                              margin: "0px 1px",
-                              borderRadius: "4px",
-                              color: "white",
-                            }
-                          : {
-                              padding: "10px 6px",
-                              margin: "0px 1px",
-                              borderRadius: "4px",
-                              color: "white",
-                            }
-                      }
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <input
-                    className="px-3 py-2 border rounded"
-                    placeholder="Nueva tarea"
-                    value={newTask.text}
-                    onChange={(e) =>
-                      setNewTask((prev) => ({ ...prev, text: e.target.value }))
-                    }
-                  />
-                  <div className="flex space-x-2">
-                    <input
-                      type="time"
-                      className="px-3 py-2 border rounded flex-1"
-                      value={newTask.scheduledTime}
-                      onChange={(e) =>
-                        setNewTask((prev) => ({
-                          ...prev,
-                          scheduledTime: e.target.value,
-                        }))
-                      }
-                    />
-                    <input
-                      type="time"
-                      className="px-3 py-2 border rounded flex-1"
-                      placeholder="Duración (ej: 2 horas)"
-                      value={newTask.duration}
-                      onChange={(e) =>
-                        setNewTask((prev) => ({
-                          ...prev,
-                          duration: e.target.value,
-                        }))
-                      }
-                    />
-                    <button
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded text-white bg-cyan-800"
-                      onClick={editingTask ? updateTask : addTask}
-                    >
-                      {editingTask ? "Actualizar" : "Agregar"}
-                    </button>
-                  </div>
-                </div>
-                <div className=" max-h-[calc(100vh-300px)] ">
-                  {tasksDay.map((task) => (
-                    <div
-                      key={task.id}
-                      style={{ margin: "3px 0px", background: "#c9e1ee" }}
-                      className="flex items-center justify-between py-2 px-3 bg-secondary   rounded-lg"
-                    >
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={task.completed}
-                            onChange={() => {
-                              clickCheckboxTask(task.id);
-                            }}
-                            className="rounded"
-                          />
-                          <span className={task.completed ? "line-through" : ""}>
-                            {task.text}
-                          </span>
-                        </div>
-                        <span>dias: {task.done + task.undone} </span>
-                        <span>x: {task.done} </span>
-                        <span>x: {task.undone} </span>
-                        {/* estadisticas de la tarea  */}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {task.scheduledTime && (
-                          <span className="text-sm">
-                            <Clock className="h-4 w-4 inline mr-1" />
-                            {task.scheduledTime}
-                          </span>
-                        )}
-  
-                        {task.duration && (
-                          <span className="text-sm">
-                            <Timer className="h-4 w-4 inline mr-1" />
-                            {task.duration}
-                          </span>
-                        )}
-  
-                        <div className="relative">
-                          <button
-                            onClick={() => toggleMenu(task.id)}
-                            className="p-1 hover:bg-primary/10 rounded"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </button>
-                          {openMenuId === task.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg z-10">
-                              <button
-                                className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary"
-                                onClick={() => editTask(task.id)}
-                              >
-                                <Edit className="h-4 w-4 mr-2" /> Editar
-                              </button>
-                              <button
-                                className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary"
-                                onClick={() => {
-                                  setTaskID(task)
-                                  setMostrarCronometro(true)
-                                }}
-                              >
-                                <Edit className="h-4 w-4 mr-2" /> Comenzar
-                              </button>
-                              <button
-                                className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary text-red-500"
-                                onClick={() => deleteTask(task.id)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" /> Eliminar
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-               )
-            }
-            </>
- 
+            <SecTareas
+              mostrarCronometro={mostrarCronometro}
+              daysOfWeek={daysOfWeek}
+              dayWeek={dayWeek}
+              filtelForDay={filtelForDay}
+              newTask={newTask}
+              setNewTask={setNewTask}
+              editingTask={editingTask}
+              updateTask={updateTask}
+              addTask={addTask}
+              tasksDay={tasksDay}
+              clickCheckboxTask={clickCheckboxTask}
+              toggleMenu={toggleMenu}
+              openMenuId={openMenuId}
+              editTask={editTask}
+              setTaskID={setTaskID}
+              setMostrarCronometro={setMostrarCronometro}
+              deleteTask={deleteTask}
+              tasks={tasks}
+              setTasks={setTasks}
+              setEditingTask={setEditingTask}
+              setTasksDay={setTasksDay}
+              setDayWeek={setDayWeek}
+              calcularHorasTotalesTareas={calcularHorasTotalesTareas}
+              horasTotalesTareasDelDia={horasTotalesTareasDelDia}
+            />
           )}
           {activeTab === "timedTasks" && (
-            <div className="space-y-4">
-              <div className="flex flex-col space-y-2">
-                <input
-                  className="px-3 py-2 border rounded"
-                  placeholder="Nueva tarea temporizada"
-                  value={newTimedTask}
-                  onChange={(e) => setNewTimedTask(e.target.value)}
-                />
-                <div className="flex space-x-2">
-                  <input
-                    type="time"
-                    className="px-3 py-2 border rounded flex-1"
-                    value={newTaskTime}
-                    onChange={(e) => setNewTaskTime(e.target.value)}
-                  />
-                  <button
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded"
-                    onClick={
-                      editingTimedTask ? () => updateTask(true) : addTimedTask
-                    }
-                  >
-                    {editingTimedTask ? "Actualizar" : "Agregar"}
-                  </button>
-                </div>
-              </div>
-              <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-auto">
-                {timedTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className={`flex items-center justify-between py-2 px-3 rounded-lg ${
-                      task.overdue ? "bg-red-100" : "bg-secondary"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={task.completed}
-                        onChange={() => toggleTask(task.id, true)}
-                        className="rounded"
-                      />
-                      <span className={task.completed ? "line-through" : ""}>
-                        {task.text}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm">
-                        <Timer className="h-4 w-4 inline mr-1" />
-                        {task.scheduledTime}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(task.createdAt).toLocaleDateString()}
-                      </span>
-                      <div className="relative">
-                        <button
-                          onClick={() => toggleMenu(task.id)}
-                          className="p-1 hover:bg-primary/10 rounded"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                        {openMenuId === task.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg z-10">
-                            <button
-                              className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary"
-                              onClick={() => editTask(task.id, true)}
-                            >
-                              <Edit className="h-4 w-4 mr-2" /> Editar
-                            </button>
-                            <button
-                              className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary text-red-500"
-                              onClick={() => deleteTask(task.id, true)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" /> Eliminar
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+           <div></div>
           )}
           {activeTab === "notes" && (
             <div className="space-y-4 ">
