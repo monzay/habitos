@@ -5,8 +5,9 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
     <div className="max-h-[calc(100vh-300px)]">
       {tasksDay.map((task) => (
         <div
+         style={{backdropFilter:"blur(10px)",background:"rgba(255,255,255,0.1)",margin:"4px 0px"} }
           key={task.id}
-          className="flex items-center justify-between py-2 px-3 bg-[#c9e1ee] my-0.75 rounded-lg"
+          className="flex items-center justify-between py-2 px-3  my-0.75 rounded-lg "
         >
           <div>
             <div className="flex items-center space-x-2">

@@ -5,7 +5,6 @@ import Cronometrar from './Cronometrar/Cronometrar';
 
 const SecTareas = ({
   mostrarCronometro,
-  daysOfWeek,
   dayWeek,
   filtelForDay,
   newTask,
@@ -20,17 +19,18 @@ const SecTareas = ({
   editTask,
   setTaskID,
   setMostrarCronometro,
-  deleteTask
+  deleteTask,
+  taskID
 }) => {
     
+
   return (
     <div>
       {mostrarCronometro ? (
-        <Cronometrar  />
+        <Cronometrar  taskID={taskID} setMostrarCronometro={setMostrarCronometro}/>
       ) : (
         <div className="space-y-4">
           <SecDias 
-            daysOfWeek={daysOfWeek}
             dayWeek={dayWeek}
             setNewTask={setNewTask}
             filtelForDay={filtelForDay}

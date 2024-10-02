@@ -1,14 +1,10 @@
 "use client";
-
-// Importamos los hooks de React que vamos a utilizar
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
-// Importamos los iconos que vamos a utilizar
+import { totalHorasTareas } from "./funcionesGlobales/CalcularHorasTotales";
+import { useState, useEffect, useRef } from "react";
 import {
   Edit,
   Trash2,
-  Clock,
   MoreVertical,
-  Timer,
 } from "lucide-react";
 import HeaderMovil from "./comonentes/HeaderMovil/HeaderMovil";
 import HeaderMovilDesplegable from "./comonentes/HeaderMovilDesplegable/HeaderMovilDesplegable";
@@ -16,13 +12,13 @@ import TopUserMovil from "./comonentes/TopUserMovil/TopUserMovil";
 import HeaderDesktop from "./comonentes/HeaderDesktop/HeaderDesktop";
 import TopDesktop from "./comonentes/TopDesktop/TopDesktop";
 import Button from "./comonentes/ui/Button";
-import Cronometrar from "./comonentes/Secciones/SecTareas/Cronometrar/Cronometrar";
 import reniciarTodasLasTareas from "./funcionesGlobales/EliminarTodasLasTareaHechaCadaSemana";
 import SecTareas from "./comonentes/Secciones/SecTareas/SecTareas";
+import { daysOfWeek } from "./json";
+import { calculateDay } from "./funcionesGlobales/CalculaElDia";
 
-// Definimos el componente principal
+
 export default function TaskManager() {
-  // Definimos los estados iniciales de las tareas, tareas temporizadas, notas, etc.
   const [tasks, setTasks] = useState([]);
   const [timedTasks, setTimedTasks] = useState([]);
   const [notes, setNotes] = useState([]);
@@ -45,23 +41,19 @@ export default function TaskManager() {
   const [showTopUsers, setShowTopUsers] = useState(false);
   const menuRef = useRef(null);
   const [mostrarCronometro,setMostrarCronometro] = useState(false)
-
   const [notas, setNotas] = useState({
     text: "",
     fecha: "",
   });
 
-
   const [tasksDay, setTasksDay] = useState([]);
-  const daysOfWeek = [
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado",
-    "Domingo",
-  ];
+  const [intervalHacerLaTarea, setIntervalHacerLaTarea] = useState(null);
+  const [horasTotalesTareasDelDia, setHorasTotalesTareasDelDia] = useState(0);
+  const [taskID, setTaskID] = useState({});
+  const [mostrarTiempo, setMostrarTiempo] = useState("");
+  const [dayWeek, setDayWeek] = useState(calculateDay());
+
+
   // Efecto que se ejecuta al cargar el componente
   useEffect(() => {
     // Obtenemos las tareas, tareas temporizadas, notas y puntos del usuario almacenados en el localStorage
@@ -114,6 +106,12 @@ export default function TaskManager() {
 
   // Función que añade una nueva tarea
   const addTask = () => {
+
+    if(!newTask.duration.includes(":") || !isNaN(newTask.duration) ){
+      alert("pelotudo pone bien la estructura")
+      return 
+    }
+
     if (newTask.text.length !== 0) {
       const newTaskItem = {
         id: Date.now(),
@@ -138,6 +136,8 @@ export default function TaskManager() {
     }
   };
 
+  // effect que verifica si ya exite el tasks en el localstorage y lo extrae del el ,  y si no crea el espacio 
+  
   useEffect(() => {
     const tasksExite = localStorage.getItem("tasks");
     if (tasksExite) {
@@ -148,6 +148,19 @@ export default function TaskManager() {
       localStorage.setItem("tasks", JSON.stringify([]));
     }
   }, [tasks]);
+
+// effect que verifica si ya exite el notes en el localstorage y lo extrae del el ,  y si no crea el espacio 
+  useEffect(() => {
+    const notasExite = localStorage.getItem("notes");
+    if (notasExite) {
+      if (notes.length > 0) {
+        localStorage.setItem("notes", JSON.stringify(notes));
+      }
+    } else {
+      localStorage.setItem("notes", JSON.stringify([]));
+    }
+  }, [notes]);
+
 
   // Función que edita una tarea
   // modo
@@ -161,6 +174,7 @@ export default function TaskManager() {
     });
     setOpenMenuId(null);
   };
+
 
   // Función que actualiza una tarea
   const updateTask = () => {
@@ -187,6 +201,8 @@ export default function TaskManager() {
       duration: "",
     });
   };
+  
+
   // Función que elimina una tarea
   const deleteTask = (id) => {
     setTasks(tasks.filter((task) => task.id !== id));
@@ -195,6 +211,7 @@ export default function TaskManager() {
     }
     setOpenMenuId(null);
   };
+
 
   // Función que añade una nueva nota
   const addNote = () => {
@@ -213,17 +230,8 @@ export default function TaskManager() {
     }
   };
 
-  useEffect(() => {
-    const notasExite = localStorage.getItem("notes");
-    if (notasExite) {
-      if (notes.length > 0) {
-        localStorage.setItem("notes", JSON.stringify(notes));
-      }
-    } else {
-      localStorage.setItem("notes", JSON.stringify([]));
-    }
-  }, [notes]);
 
+  // mode actualizar 
   const modoActualizar = (id) => {
     setEditingNote(id);
     const notaEncontrada = notes.find((note) => note.id === id);
@@ -233,6 +241,8 @@ export default function TaskManager() {
     });
     setOpenMenuId(null);
   };
+
+
   // Función que actualiza una nota
   const editarNota = () => {
     setNotes((prev) => {
@@ -254,6 +264,7 @@ export default function TaskManager() {
     });
   };
 
+
   // Función que elimina una nota
   const deleteNote = (id) => {
     setNotes(notes.filter((note) => note.id !== id));
@@ -263,49 +274,41 @@ export default function TaskManager() {
     setOpenMenuId(null);
   };
 
+
   // Función que muestra u oculta el menú
   const toggleMenu = (id) => {
     setOpenMenuId(openMenuId === id ? null : id);
   };
+
 
   // Función que muestra u oculta el menú móvil
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);
   };
 
+
   // Función que muestra u oculta el panel de usuarios destacados
   const toggleTopUsers = () => {
     setShowTopUsers(!showTopUsers);
   };
 
-  const calculateDay = () => {
-    const days = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-    ];
-    const date = new Date().getDay();
-    return days[date];
-  };
 
-  const [dayWeek, setDayWeek] = useState(calculateDay());
+ 
+/////////////////////////////////////////////////////////////////////////////////////
 
+
+  // al hacer click en un dia se filtra las tareas por el dia 
   const filtelForDay = (day) => {
     const tasksDay = tasks.filter((task) => task.day === day);
     setTasksDay(tasksDay);
     setDayWeek(day);
   };
 
-  //////////////////////////////////////////////////////////////////////////////////
 
-  const [horasTotalesTareasDelDia, setHorasTotalesTareasDelDia] = useState(0);
-  const [taskID, setTaskID] = useState({});
-  const [mostrarTiempo, setMostrarTiempo] = useState("");
+//////////////////////////////////////////////////////////////////////////////////
 
+
+  // funcion no implementada en iu 
   function calcularHorasTotalesTareas() {
     let horasTotales = 0;
     let minutosTotales = 0;
@@ -329,9 +332,10 @@ export default function TaskManager() {
     const minutosFinales = minutosTotales % 60;
 
     const tiempoFinalString = `${horasFinales}:${minutosFinales}`;
-    console.log(tiempoFinalString);
     setHorasTotalesTareasDelDia(tiempoFinalString);
   }
+
+//////////////////////////////////////////////////////////////////////////////////
 
   // por ahora no vamos a gurdar el timepo trancurrido
   function HacerLaTarea() {
@@ -350,7 +354,6 @@ export default function TaskManager() {
             }
           }
           let tiempoTranscurrido = `${horasRestante}:${minutosRestante}`;
-          console.log(tiempoTranscurrido);
           setMostrarTiempo(tiempoTranscurrido);
           setIntervalHacerLaTarea(interval);
         }
@@ -358,49 +361,38 @@ export default function TaskManager() {
     }
   }
 
-  const [intervalHacerLaTarea, setIntervalHacerLaTarea] = useState(null);
+//////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     HacerLaTarea();
     return () => clearInterval(intervalHacerLaTarea);
   }, [taskID]);
 
+
   //////////////////////////////////////////////////////////////////////////////////
-  const [tiempoTotal, setTiempoTotal] = useState("");
-  function totalHorasTareas() {
-    let hora = 0;
-    let minutos = 0;
-    for (let i = 0; i < tasksDay.length; i++) {
-      const parte = tasksDay[i].duration.split(":");
-      hora += parseInt(parte[0]);
-      minutos += parseInt(parte[1]);
-    }
-    hora += Math.floor(minutos / 60);
-    minutos %= 60;
-    const timeTotal = `${hora}:${minutos}`;
-    return timeTotal;
-  }
+
+  
   useEffect(() => {
-    totalHorasTareas();
+    totalHorasTareas(tasksDay);
   }, [tasksDay]);
-
   //////////////////////////////////////////////////////////////////////////////////
-
   useEffect(() => {
     filtelForDay(calculateDay());
   }, [tasks]);
+
 
   useEffect(() => {
     calcularHorasTotalesTareas();
   }, [dayWeek]);
 
+
+  // click  y se marca la tarea que fue completada 
   const clickCheckboxTask = (id) => {
-    // 1. Check if a task with the given ID exists and if it's already completed for today
     const existingTask = tasks.find((task) => task.id === id);
     const isCompletedToday =
       existingTask?.completed && existingTask.day === getTodaysName();
-
     if (!existingTask || isCompletedToday) {
-      return; // Do nothing if task doesn't exist or is already completed for today
+      return;
     }
     const updatedTasks = tasks.map((task) =>
       task.id === id ? { ...task, done: task.done + 1, completed: true } : task
@@ -413,8 +405,6 @@ export default function TaskManager() {
     const today = new Date().toLocaleDateString("es-ES", { weekday: "long" });
     return today.charAt(0).toUpperCase() + today.slice(1); // Capitalize the first letter
   }
-
-
 
   useEffect(() => {
     reniciarTodasLasTareas()
@@ -454,7 +444,7 @@ export default function TaskManager() {
               txt="Tarea"
             />
             <button
-              style={{ background: "#275e7d", color: "white" }}
+           style={{backdropFilter:"blur(10px)",background:"rgba(255,255,255,0.3"}}
               className={`px-4 py-2 rounded ${
                 activeTab === "timedTasks"
                   ? "bg-primary text-primary-foreground"
@@ -465,7 +455,7 @@ export default function TaskManager() {
               Tareas Temporizadas
             </button>
             <button
-              style={{ background: "#275e7d", color: "white" }}
+              style={{backdropFilter:"blur(10px)",background:"rgba(255,255,255,0.3"}}
               className={`px-4 py-2 rounded ${
                 activeTab === "notes"
                   ? "bg-primary text-primary-foreground"
@@ -493,6 +483,7 @@ export default function TaskManager() {
               openMenuId={openMenuId}
               editTask={editTask}
               setTaskID={setTaskID}
+              taskID={taskID}
               setMostrarCronometro={setMostrarCronometro}
               deleteTask={deleteTask}
               tasks={tasks}
