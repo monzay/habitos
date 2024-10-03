@@ -1,8 +1,45 @@
 import { Clock, Timer, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+
+function calcularHorasFaltantesDelDia() {
+  const ahora = new Date();
+  const finDelDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59);
+  const milisegundosFaltantes = finDelDia - ahora;
+  const horasFaltantes = Math.floor(milisegundosFaltantes / (1000 * 60 * 60));
+  const minutosFaltantes = Math.floor((milisegundosFaltantes % (1000 * 60 * 60)) / (1000 * 60));
+  return ` h${horasFaltantes} m${minutosFaltantes}`
+} 
+
+function calcularHorarioInput (){
+  const ahora = new Date();
+  const totalMinutos = ahora.getHours() * 60 + ahora.getMinutes();
+  console.log(totalMinutos)
+  return totalMinutos 
+}
 
 const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editTask, setTaskID, setMostrarCronometro, deleteTask }) => {
+  const [hora , setHora] = useState(calcularHorarioInput());
+
+  useEffect(() => {
+     const interval = setInterval(() => {
+      setHora( calcularHorarioInput())
+    },  60000);
+   return ()=>  clearInterval(interval)
+  }, []);
+
+
+  
+
   return (
     <div className="max-h-[calc(100vh-300px)]">
+      <input 
+        className="w-full "
+        type="range" 
+        max="1440"
+        value={hora}
+      />
+      <p>tiempo faltante  {calcularHorasFaltantesDelDia()} </p>
       {tasksDay.map((task) => (
         <div
          style={{
@@ -27,9 +64,9 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
                 {task.text}
               </span>
             </div>
-            <span>dias: {task.done + task.undone} </span>
-            <span>x: {task.done} </span>
-            <span>x: {task.undone} </span>
+            <span>d:     {task.done + task.undone} </span>
+            <span>h: {task.done} </span>
+            <span>nh: {task.undone} </span>
           </div>
           <div className="flex items-center space-x-2">
             {task.scheduledTime && (
@@ -38,7 +75,6 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
                 {task.scheduledTime}
               </span>
             )}
-
             {task.duration && (
               <span className="text-sm">
                 <Timer className="h-4 w-4 inline mr-1" />

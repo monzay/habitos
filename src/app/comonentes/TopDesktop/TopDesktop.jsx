@@ -27,15 +27,15 @@ const TopDesktop = () => {
         </>
       )}
       {
-        isActiveModo === "data" && (
+        isActiveModo === "estadisticas" && (
           <div>
-            data
+            estadisticas.... 
           </div>
         )
       }
       <div className="flex w-full">
-        <div className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">top</div>
-        <div className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">estadi</div>
+        <div  onClick={()=> setIsActiveMode("top")} className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">top</div>
+        <div onClick={()=> setIsActiveMode("estadisticas")} className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">estadi</div>
       </div>
     </aside>
   );
