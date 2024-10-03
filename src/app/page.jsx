@@ -429,7 +429,7 @@ export default function TaskManager() {
       <main className="flex-1 p-6 overflow-auto ">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl  font-bold hidden md:block">
-            {calculateDay()}{" "}
+            {calculateDay()}
           </h1>
           <div className="text-lg font-semibold">
             {currentTime.toLocaleTimeString()}

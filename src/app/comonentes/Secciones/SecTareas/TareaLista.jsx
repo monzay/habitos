@@ -5,9 +5,13 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
     <div className="max-h-[calc(100vh-300px)]">
       {tasksDay.map((task) => (
         <div
-         style={{backdropFilter:"blur(10px)",background:"rgba(255,255,255,0.1)",margin:"4px 0px"} }
+         style={{
+          backdropFilter:"blur(10px)",
+          background:"rgba(255,255,255,0.1)",
+          margin:"4px 0px",
+        } }
           key={task.id}
-          className="flex items-center justify-between py-2 px-3  my-0.75 rounded-lg "
+          className="flex items-center justify-between py-2 px-3  my-0.75 rounded-lg relatice "
         >
           <div>
             <div className="flex items-center space-x-2">
@@ -19,7 +23,7 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
                 }}
                 className="rounded"
               />
-              <span className={task.completed ? "line-through" : ""}>
+              <span  className={task.completed ? "line-through" : ""}>
                 {task.text}
               </span>
             </div>
@@ -50,9 +54,14 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
                 <MoreVertical className="h-4 w-4" />
               </button>
               {openMenuId === task.id && (
-                <div className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg z-10">
+                <div   style={{
+                  background:"rgba(255,255,255,0.2)",
+                  position:"absolute",
+                  right:0,
+                  borderRadius:5
+                }} className=" ">
                   <button
-                    className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary"
+                    className="flex tems-center w-full text-left px-4 py-2 hover:bg-secondary"
                     onClick={() => editTask(task.id)}
                   >
                     <Edit className="h-4 w-4 mr-2" /> Editar

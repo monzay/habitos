@@ -33,10 +33,10 @@ const TopDesktop = () => {
           </div>
         )
       }
-      <div style={{ display: "flex" , width:"100%"}}>
-      <div style={{ flex: 1, background: "rgba(255,255,255,0.2)", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" ,borderRadius:"5px"}}>top</div>
-      <div style={{ flex: 1, background: "rgba(255,255,255,0.2)", height: "40px", display: "flex", alignItems: "center", justifyContent: "center",borderRadius:"5px" }}>estadi</div>
-    </div>
+      <div className="flex w-full">
+        <div className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">top</div>
+        <div className="flex-1 bg-white/20 h-10 flex items-center justify-center rounded-md">estadi</div>
+      </div>
     </aside>
   );
 };
