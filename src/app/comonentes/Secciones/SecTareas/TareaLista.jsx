@@ -68,7 +68,7 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
             <span>h: {task.done} </span>
             <span>nh: {task.undone} </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2"> c
             {task.scheduledTime && (
               <span className="text-sm">
                 <Clock className="h-4 w-4 inline mr-1" />

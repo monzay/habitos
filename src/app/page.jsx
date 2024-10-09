@@ -1,11 +1,6 @@
 "use client";
 import { totalHorasTareas } from "./funcionesGlobales/CalcularHorasTotales";
 import { useState, useEffect, useRef } from "react";
-import {
-  Edit,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
 import HeaderMovil from "./comonentes/HeaderMovil/HeaderMovil";
 import HeaderMovilDesplegable from "./comonentes/HeaderMovilDesplegable/HeaderMovilDesplegable";
 import TopUserMovil from "./comonentes/TopUserMovil/TopUserMovil";
@@ -16,6 +11,7 @@ import reniciarTodasLasTareas from "./funcionesGlobales/EliminarTodasLasTareaHec
 import SecTareas from "./comonentes/Secciones/SecTareas/SecTareas";
 import { daysOfWeek } from "./json";
 import { calculateDay } from "./funcionesGlobales/CalculaElDia";
+import SecNotas from "./comonentes/Secciones/SecNotas/SecNotas";
 
 
 export default function TaskManager() {
@@ -28,6 +24,7 @@ export default function TaskManager() {
     duration: "",
     day: "",
   });
+
   const [newTaskTime, setNewTaskTime] = useState("");
   const [newTaskDuration, setNewTaskDuration] = useState("");
   const [newTimedTask, setNewTimedTask] = useState("");
@@ -496,76 +493,21 @@ export default function TaskManager() {
             />
           )}
           {activeTab === "timedTasks" && (
-           <div></div>
+           <div>en desarrollo...</div>
           )}
           {activeTab === "notes" && (
-            <div className="space-y-4 ">
-              <div className="flex space-x-2">
-                <input
-                  className="flex-1 px-3 py-2 border rounded"
-                  placeholder="Nueva nota"
-                  value={notas.text}
-                  onChange={(e) =>
-                    setNotas((prev) => ({ ...prev, text: e.target.value }))
-                  }
-                />
-                <input
-                  type="date"
-                  value={notas.fecha}
-                  onChange={(e) =>
-                    setNotas((prev) => ({ ...prev, fecha: e.target.value }))
-                  }
-                />
-                <button
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded"
-                  onClick={editingNote ? editarNota : addNote}
-                >
-                  {editingNote ? "Actualizar" : "Agregar"}
-                </button>
-              </div>
-              <div className="space-y-2 max-h-[calc(100vh-300px)] ">
-                {notes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="flex items-center justify-between py-2 px-3 bg-secondary rounded-lg"
-                  >
-                    <span>{note.text}</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(note.createdAt).toLocaleDateString()}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {note.fecha}
-                      </span>
-                      <div className="relative">
-                        <button
-                          onClick={() => toggleMenu(note.id)}
-                          className="p-1 hover:bg-primary/10 rounded"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                        {openMenuId === note.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg z-10">
-                            <button
-                              className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary"
-                              onClick={() => modoActualizar(note.id)}
-                            >
-                              <Edit className="h-4 w-4 mr-2" /> Editar
-                            </button>
-                            <button
-                              className="flex items-center w-full text-left px-4 py-2 hover:bg-secondary text-red-500"
-                              onClick={() => deleteNote(note.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" /> Eliminar
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SecNotas 
+            notas={notas}
+             setNotas={setNotas}
+              editingNote={editingNote}
+               addNote={addNote}
+                editarNota={editarNota}
+                 notes={notes}
+                  toggleMenu={toggleMenu}
+                   openMenuId={openMenuId}
+                    modoActualizar={modoActualizar}
+                     deleteNote={deleteNote}
+                     />        
           )}
         </div>
       </main>
