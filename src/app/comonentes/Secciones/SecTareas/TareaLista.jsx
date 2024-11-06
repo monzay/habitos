@@ -43,8 +43,6 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
       {tasksDay.map((task) => (
         <div
          style={{
-          backdropFilter:"blur(10px)",
-          background:"rgba(255,255,255,0.1)",
           margin:"4px 0px",
         } }
           key={task.id}
@@ -64,11 +62,11 @@ const TareaLista = ({ tasksDay, clickCheckboxTask, toggleMenu, openMenuId, editT
                 {task.text}
               </span>
             </div>
-            <span>d:     {task.done + task.undone} </span>
+            <span>d: {task.done + task.undone} </span> 
             <span>h: {task.done} </span>
             <span>nh: {task.undone} </span>
           </div>
-          <div className="flex items-center space-x-2"> c
+          <div className="flex items-center space-x-2"> 
             {task.scheduledTime && (
               <span className="text-sm">
                 <Clock className="h-4 w-4 inline mr-1" />
